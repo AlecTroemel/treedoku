@@ -1,0 +1,90 @@
+<html>
+    <div>
+        <h2>TreeDoku</h1>
+        <input id="clickMe" type="button" value="clickme" onclick="createGraph();" />
+        <input id="numbers" type="number" value="5"/>
+    </div>
+    
+    <body>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script src="springy.js"></script>
+        <script src="springyui.js"></script>
+        <script> 
+
+            function createPrufer(size) {
+                var mainArray = new Array();
+                var pCode = new Array();
+
+                //create full list 
+                for(i = 1; i <= size; i++) {
+                    mainArray.push(i);
+                }
+
+                //iterate size - 2 times
+                for(i = 0; i < size - 2; i++) {
+                    //randomly choose number from main list and push into pCode
+                    var temp = Math.floor((Math.random() * (size-1) ) );
+                    pCode.push(mainArray[temp]);
+                }
+                return pCode;
+            }
+
+
+                    //create function that translates prufer curve into graph 
+            function createGraph() {  
+
+                var size = document.getElementById("numbers").value;
+                console.log(size);
+                var mainArray = new Array();
+                var pCode = createPrufer(size);          
+                var graph = new Springy.Graph();
+                var nodeArray = new Array();
+
+                //create main array and graph 
+                for(k = 1; k <= (pCode.length+2); k++) {
+                    mainArray.push(k);
+                    nodeArray.push(graph.newNode({label: k.toString()}));   //add nodes
+                }
+
+                var tempLength = pCode.length;
+                for (i = 0; i < tempLength; i++)
+                {
+                    var temp = pCode[0];    //number of code at i
+                    var lowestVal;
+                    //get lowest value in allNodes not in pruffer code
+                    for (j = 0; j < mainArray.length; j++)
+                    {   
+                        var switcher = true;
+                        for(a = 0; a < pCode.length; a++) {
+                            if(mainArray[j] == pCode[a]) {
+                                switcher = false;
+                            }
+                        }
+                        if (switcher == true) {
+                            lowestVal = mainArray[j]; 
+                            break;
+                        }     
+                    }
+                    //connect the first node in the prufer to the lowest number 
+                    graph.newEdge(nodeArray[temp-1], nodeArray[lowestVal-1], {color: '#00A0B0'}  );
+
+                    mainArray.splice(mainArray.indexOf(lowestVal), 1);   //remove the lowest number 
+                    pCode.splice(0, 1);                 //remove the first node in the prufer code
+                }
+                graph.newEdge(nodeArray[mainArray.pop()-1], nodeArray[mainArray.pop()-1], {color: '#00A0B0'}  );
+                
+                var canvas = document.getElementById("treeCanvas");
+                
+                jQuery(function(){
+                    var springy = jQuery('#treeCanvas').springy({
+                    graph: graph
+                    });
+                });
+                
+                return graph;
+            }
+        </script>
+
+        <canvas id="treeCanvas" width="640" height="480" />
+    </body>
+</html>
