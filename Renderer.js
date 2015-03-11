@@ -4,8 +4,8 @@ jQuery.fn.springy = function(params) {
 	var graph = this.graph = params.graph || new Springy.Graph();
 	var nodeFont = "24px Verdana, sans-serif";
 	var edgeFont = "20px Verdana, sans-serif";
-	var stiffness = params.stiffness || 400.0;
-	var repulsion = params.repulsion || 400.0;
+	var stiffness = params.stiffness || 800.0;
+	var repulsion = params.repulsion || 200.0;
 	var damping = params.damping || 0.5;
 	var minEnergyThreshold = params.minEnergyThreshold || 0.00001;
 	var nodeSelected = params.nodeSelected || null;
@@ -53,7 +53,7 @@ jQuery.fn.springy = function(params) {
 		return new Springy.Vector(px, py);
 	};
 
-	// half-assed drag and drop
+	//drag and drop
 	var selected = null;
 	var nearest = null;
 	var dragged = null;
@@ -62,10 +62,10 @@ jQuery.fn.springy = function(params) {
 		var pos = jQuery(this).offset();
 		var p = fromScreen({x: e.pageX - pos.left, y: e.pageY - pos.top});
 		selected = nearest = dragged = layout.nearest(p);
-
+       
 		if (selected.node !== null) {
-			dragged.point.m = 10000.0;
-
+			dragged.point.m = 10.0;
+            
 			if (nodeSelected) {
 				nodeSelected(selected.node);
 			}
@@ -85,7 +85,7 @@ jQuery.fn.springy = function(params) {
 	});
 
 	jQuery(canvas).mousemove(function(e) {
-      
+        
 		var pos = jQuery(this).offset();
 		var p = fromScreen({x: e.pageX - pos.left, y: e.pageY - pos.top});
 		nearest = layout.nearest(p);
@@ -94,17 +94,62 @@ jQuery.fn.springy = function(params) {
 			dragged.point.p.x = p.x;
 			dragged.point.p.y = p.y;
 		}
-
+        
 		renderer.start();
 	});
 
 	jQuery(window).bind('mouseup',function(e) {
 		dragged = null;	
-        selected = null;
-	    nearest = null;
-
+        renderer.start();
 	});
 
+    
+    //******************        zoom in and out         ***************************
+    function handle(delta) {
+        if (delta < 0) {
+            console.log("scroll out");
+            ctx.scale(1.1,1.1);
+        }
+        else {
+            console.log("scroll in");
+            ctx.scale(0.9,0.9);
+        }
+        
+        renderer.start();
+    }
+
+    function wheel(event){
+        var delta = 0;
+        if (!event) event = window.event;
+        if (event.wheelDelta) {
+            delta = event.wheelDelta/120; 
+        } else if (event.detail) {
+            delta = -event.detail/3;
+        }
+        if (delta)
+            handle(delta);
+            if (event.preventDefault)
+                    event.preventDefault();
+            event.returnValue = false;
+    }
+
+    
+    if (window.addEventListener)
+        window.addEventListener('DOMMouseScroll', wheel, false);
+    window.onmousewheel = document.onmousewheel = wheel;
+    
+    
+    //add mouse wheel event listener 
+    jQuery(window).bind("mousewheel", function(event) {
+        console.log("wheel spinner "); 
+        
+        
+    });
+    
+
+    
+    
+    //******************        renderer helpers        ******************************
 	var getTextWidth = function(node) {
 		var text = (node.data.label !== undefined) ? node.data.label : node.id;
 		if (node._width && node._width[text])
@@ -253,11 +298,12 @@ jQuery.fn.springy = function(params) {
 
             //clear circle
             ctx.fillStyle = "#ffffff";
+      
             ctx.beginPath();
             ctx.arc(s.x,s.y  , boxWidth/2, boxHeight/2, Math.PI*2, true); 
             ctx.closePath();
             
-            ctx.fill();
+           //ctx.fill();
         
 			// fill background to desired colors 
 			if (selected !== null && selected.node !== null && selected.node.id === node.id) {           //selected 
