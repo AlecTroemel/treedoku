@@ -4,13 +4,15 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>TreeDoku</title>
         <meta name="TreeDoku" content="the game treedoku">
-        <link rel="stylesheet" href="Main.css">
+       
+        <script type="text/javascript" src="paper-full.js"></script>
+        <script type="text/paperscript" canvas="treeCanvas"></script>
     </head>
     
     <div>
         <h2>TreeDoku</h1>
         <label for="numbers">Puzzle Size</label>
-        <input id="numbers" type="number" value="5"/>
+        <input id="numbers" type="number" value="9"/>
         <input id="createGraph" type="button" value="Create Graph" onclick="createGraph();" />
         <label for="label">number</label>
         <input id="label" type="number" value="0" min="0"/>
@@ -20,13 +22,14 @@
         <body>
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
             <script src="springy.js"></script>
-            <script src="Renderer.js"></script>
+            
             <script> 
                 //global variables
                 var graph;
                 var nodeArray;  
                 var edgeArray;
                 var edgeValues;
+                
 
                 //function that creates random prufer code of size n 
                 function createPrufer(size) {
@@ -92,7 +95,7 @@
 
                     //push graph to canvas
                     var canvas = document.getElementById("treeCanvas");
-                    jQuery(function(){
+                   /* jQuery(function(){
                         var springy = jQuery('#treeCanvas').springy({
                             graph: graph,
                             nodeSelected: function(node){   //handle selected node
@@ -101,11 +104,10 @@
                             },
                             
                         });
-                    });
+                    }); */
                     return graph;
                 }
-
-
+           
                 //changes label of node that input in the text field, then updates edge values
                 function changeLabel(node) {
                     //update node label
@@ -146,8 +148,8 @@
                 }
             </script>
 
-            
+            <script type="text/paperscript" src="Renderer3.js" canvas="treeCanvas"></script>
         </body>
-        <canvas id="treeCanvas" />
+        <canvas id="treeCanvas" width="1000" height="800" />
     </div>
 </html>
